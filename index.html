@@ -1,0 +1,276 @@
+<!DOCTYPE html>  
+<html lang="ru">  
+<head>  
+    <meta charset="utf-8" />  
+    <title>Задание 5</title>  
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1" />  
+    <link rel="stylesheet" href="styles.css">  
+</head>  
+<body>  
+    <section id="navigation">  
+        <img src="img/menu.png" alt="Навигация">  
+    </section>  
+    <div id="app"> 
+        <section class="title" id="start-section"> 
+            <h1>Тестирование</h1>  
+            <p>Осталось пройти небольшой тест, который покажет, как хорошо ты усвоил материал</p>  
+            <div class="description">  
+                <ul>  
+                    <li>Для успешного прохождения нужно правильно ответить минимум на 7 вопросов из 10</li>  
+                    <li>На прохождение теста дается 3 попытки</li>  
+                </ul>  
+            </div>  
+            <div class="start">  
+                <button id="start-button">Начать<img src="img/Icon.png" alt="next"></button>  
+            </div>  
+        </section>  
+ 
+        <section id="question-section" style="display: none;"> 
+            <div class="question"> 
+                <h1>Тестирование</h1>  
+                <p class="question" id="question-text"></p> 
+                <div class="answer" id="answers-container"></div> 
+            </div> 
+            <button class="buttons" id="next-button">Принять</button> 
+        </section> 
+ 
+        <section id="result-section" style="display: none;"> 
+            <div class="feedback"> 
+                <div id="nav-result">
+                    <img src="img/menu_result.png" alt="навигация">
+                </div>
+                <h1>Результаты тестирования</h1>  
+                <p class="polz">Константин Константинопольский 20.01.2020</p> 
+                <div class="result">
+                    <div class="score">
+                        <p id="result-text"></p> 
+                        <p id="result-score"></p>
+                    </div>
+                    <div id="best-score-all" style="display: none;">
+                        <p id="best-score-text"></p> 
+                        <p id="best-score"></p>
+                    </div>
+                </div>
+                <p id="pass-fail-text"></p> 
+            </div> 
+            <button class="restart-button" id="restart-button">Повторить тест<img src="img/Union.png" alt=""></button> 
+        </section> 
+    </div> 
+ 
+    <footer>  
+        <img src="img/footer.png" alt="подвал">  
+    </footer>  
+ 
+    <script> 
+        const questions = [ 
+        {  
+                question: "1+1",  
+                answers: [  
+                    { text: "1", correct: false },  
+                    { text: "2", correct: true },  
+                    { text: "3", correct: false },  
+                    { text: "4", correct: false }  
+                ]  
+            },  
+            {  
+                question: "1+2",  
+                answers: [  
+                    { text: "1", correct: false },  
+                    { text: "2", correct: false },  
+                    { text: "3", correct: true },  
+                    { text: "4", correct: false }  
+                ]  
+            }, 
+            {  
+                question: "1+3",  
+                answers: [  
+                    { text: "1", correct: false },  
+                    { text: "2", correct: false },  
+                    { text: "3", correct: false },  
+                    { text: "4", correct: true }  
+                ]  
+            }, 
+            {  
+                question: "2+2",  
+                answers: [  
+                    { text: "1", correct: false },  
+                    { text: "2", correct: false },  
+                    { text: "3", correct: false },  
+                    { text: "4", correct: true }  
+                ]  
+            }, 
+            {  
+                question: "2+1",  
+                answers: [  
+                    { text: "1", correct: false },  
+                    { text: "2", correct: false },  
+                    { text: "3", correct: true },  
+                    { text: "4", correct: false }  
+                ]  
+            }, 
+            {  
+                question: "3+1",  
+                answers: [  
+                    { text: "1", correct: false },  
+                    { text: "2", correct: false },  
+                    { text: "3", correct: false },  
+                    { text: "4", correct: true  }  
+                ]  
+            }, 
+            {  
+                question: "3/3",  
+                answers: [  
+                    { text: "1", correct: true },  
+                    { text: "2", correct: false },  
+                    { text: "3", correct: false },  
+                    { text: "4", correct: false }  
+                ]  
+            }, 
+            {  
+                question: "1+0",  
+                answers: [  
+                    { text: "1", correct: true },  
+                    { text: "2", correct: false },  
+                    { text: "3", correct: false },  
+                    { text: "4", correct: false }  
+                ]  
+            }, 
+            {  
+                question: "5-1",  
+                answers: [  
+                    { text: "1", correct: false },  
+                    { text: "2", correct: false },  
+                    { text: "3", correct: false },  
+                    { text: "4", correct: true }  
+                ]  
+            }, 
+            {  
+                question: "4-1",  
+                answers: [  
+                    { text: "1", correct: false },  
+                    { text: "2", correct: false },  
+                    { text: "3", correct: true },  
+                    { text: "4", correct: false }  
+                ]  
+            }, 
+        ]; 
+ 
+        let currentQuestionIndex = 0; 
+        let userAnswers = []; 
+        let score = 0; 
+        let bestScorePercent = 0; 
+        let attempts = 0; 
+        const maxAttempts = 3; 
+ 
+        document.addEventListener("DOMContentLoaded", () => { 
+            const startButton = document.getElementById("start-button"); 
+            const nextButton = document.getElementById("next-button"); 
+            const restartButton = document.getElementById("restart-button"); 
+             
+            startButton.addEventListener("click", startQuiz); 
+            nextButton.addEventListener("click", nextQuestion); 
+            restartButton.addEventListener("click", restartQuiz); 
+        }); 
+ 
+        function startQuiz() { 
+            document.getElementById("start-section").style.display = "none"; 
+            document.getElementById("question-section").style.display = "block"; 
+            document.getElementById("result-section").style.display = "none";  
+            currentQuestionIndex = 0; 
+            userAnswers = []; 
+            score = 0; 
+            showQuestion(); 
+        } 
+ 
+        function showQuestion() { 
+            document.getElementById("navigation").style.display = "block";
+            const questionData = questions[currentQuestionIndex]; 
+            document.getElementById("question-text").innerText = questionData.question; 
+            const answersContainer = document.getElementById("answers-container");
+            answersContainer.innerHTML = ""; 
+ 
+            questionData.answers.forEach((answer, index) => { 
+                const answerDiv = document.createElement("div"); 
+                answerDiv.classList.add("answer-option"); 
+                const radioInput = document.createElement("input"); 
+                radioInput.type = "radio";
+                radioInput.id = "answer" + index; 
+                radioInput.name = "answers"; 
+                radioInput.value = answer.correct; 
+                radioInput.classList.add("custom-radio"); 
+                
+                const label = document.createElement("label"); 
+                label.htmlFor = "answer" + index; 
+                label.innerText = answer.text; 
+                label.classList.add("custom-label"); 
+                
+                answerDiv.appendChild(radioInput); 
+                answerDiv.appendChild(label); 
+                answersContainer.appendChild(answerDiv); 
+            }); 
+        } 
+ 
+        function nextQuestion() { 
+            const selectedAnswer = document.querySelector('input[name="answers"]:checked'); 
+            if (!selectedAnswer) { 
+                alert("Выберите ответ перед переходом к следующему вопросу."); 
+                return; 
+            } 
+ 
+            userAnswers.push(selectedAnswer.value === "true"); 
+ 
+            if (selectedAnswer.value === "true") { 
+                score++; 
+            } 
+ 
+            currentQuestionIndex++; 
+            if (currentQuestionIndex >= questions.length) { 
+                finishQuiz(); 
+            } else { 
+                showQuestion(); 
+            } 
+        } 
+ 
+        function finishQuiz() { 
+            const resultPercent = Math.round((score / questions.length) * 100); 
+            bestScorePercent = Math.max(resultPercent, bestScorePercent); 
+            
+
+            document.getElementById("navigation").style.display = "none";
+            document.getElementById("question-section").style.display = "none"; 
+            document.getElementById("result-section").style.display = "block"; 
+            document.getElementById("result-text").innerText = "Результаты " + (attempts + 1) + "-й попытки "; 
+            document.getElementById("result-score").innerText = score + "/" + questions.length + " " + resultPercent + "%"
+            document.getElementById("pass-fail-text").innerText = score / questions.length >= 0.7  
+                ? "Поздравляем! Вы успешно прошли тест."  
+                : "Не очень хороший результат, рекомендуем изучить курс еще раз."; 
+            if (attempts > 0 && score / questions.length < 0.7) {
+                document.getElementById("best-score-all").style.display = "block";
+                document.getElementById("best-score-text").innerText = "Лучший результат ";
+                document.getElementById("best-score").innerText = bestScorePercent + "%";
+            } else {
+                document.getElementById("best-score-text").innerText = "";
+            }
+            
+            if (score / questions.length >= 0.7) {
+                document.getElementById("best-score-all").style.display = "none"
+                document.getElementById("restart-button").style.display = "none";
+                document.getElementById("result-score").style.color = "rgb(115 190 67)";
+            } else {
+                document.getElementById("restart-button").style.display = "block";
+            }
+
+            attempts++; 
+        } 
+ 
+        function restartQuiz() { 
+            if (attempts < maxAttempts) { 
+                document.getElementById("result-section").style.display = "none";  
+                startQuiz(); 
+            } else { 
+                alert("Вы исчерпали все попытки."); 
+            } 
+        } 
+    </script> 
+</body> 
+</html>
